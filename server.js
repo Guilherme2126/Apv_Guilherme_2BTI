@@ -5,55 +5,102 @@ const port = 3000;
 
 app.use(express.json());
 
-const alunos = [
-  { id: 1, nome: "Augusto", turma: "2TIB" },
-  { id: 2, nome: "Gustavo", turma: "2TIB" },
-  { id: 3, nome: "Rayssa", turma: "2TIB" },
-  { id: 4, nome: "Amanda", turma: "2TIB" },
-  { id: 5, nome: "Marcos", turma: "2TIB" },
-  { id: 6, nome: "Michelly", turma: "2TIB" },
-  { id: 7, nome: "Maria Fernanda", turma: "2TIB" },
-  { id: 8, nome: "Fellype", turma: "2TIB" }
+// Armazenamento em memória (Usando tema permitido: Jogos)
+const jogos = [
+  { id: 1, titulo: "Minecraft", genero: "Sandbox", ano: 2011 },
+  { id: 2, titulo: "The Witcher 3", genero: "RPG", ano: 2015 },
+  { id: 3, titulo: "GTA V", genero: "Ação", ano: 2013 }
 ];
 
+let proximoId = 4; // Contador incremental para garantir IDs únicos
+
+// Rota de Boas-Vindas
 app.get("/", (req, res) => {
   res.json({
-    mensagem: "Servidor Express funcionando!",
+    mensagem: "API de Catálogo de Jogos funcionando!",
     disciplina: "Desenvolvimento de Websites",
     bimestre: "3º bimestre"
   });
 });
 
-app.get("/alunos", (req, res) => {
-  res.json(alunos);
+// GET /jogos - Listar todos os jogos
+app.get("/jogos", (req, res) => {
+  res.json(jogos);
 });
 
-app.get("/alunos/:id", (req, res) => {
+// GET /jogos/:id - Buscar jogo por ID
+app.get("/jogos/:id", (req, res) => {
   const id = Number(req.params.id);
+  const jogo = jogos.find((item) => item.id === id);
 
-  const aluno = alunos.find((aluno) => aluno.id === id);
-
-  if (!aluno) {
-    return res.status(404).json({
-      message: "Aluno não encontrado"
-    });
+  if (!jogo) {
+    return res.status(404).json({ mensagem: "Jogo não encontrado" });
   }
 
-  res.json(aluno);
+  res.json(jogo);
 });
 
-app.post("/alunos", (req, res) => {
-  const novoAluno = {
-    id: alunos.length + 1,
-    nome: req.body.nome,
-    turma: req.body.turma
+// POST /jogos - Cadastrar novo jogo
+app.post("/jogos", (req, res) => {
+  const { titulo, genero, ano } = req.body;
+
+  if (!titulo || !genero) {
+    return res.status(400).json({ mensagem: "Título e gênero são obrigatórios" });
+  }
+
+  const novoJogo = {
+    id: proximoId++,
+    titulo,
+    genero,
+    ano: Number(ano) || null
   };
 
-  alunos.push(novoAluno);
+  jogos.push(novoJogo);
 
   res.status(201).json({
-    mensagem: "Aluno cadastrado com sucesso",
-    aluno: novoAluno
+    mensagem: "Jogo cadastrado com sucesso",
+    jogo: novoJogo
+  });
+});
+
+// PUT /jogos/:id - Editar jogo existente (Obrigatório AV1)
+app.put("/jogos/:id", (req, res) => {
+  const id = Number(req.params.id);
+  const index = jogos.findIndex((item) => item.id === id);
+
+  if (index === -1) {
+    return res.status(404).json({ mensagem: "Jogo não encontrado" });
+  }
+
+  const { titulo, genero, ano } = req.body;
+
+  jogos[index] = {
+    id,
+    titulo: titulo || jogos[index].titulo,
+    genero: genero || jogos[index].genero,
+    ano: ano ? Number(ano) : jogos[index].ano
+  };
+
+  res.json({
+    mensagem: "Jogo atualizado com sucesso",
+    jogo: jogos[index]
+  });
+});
+
+// DELETE /jogos/:id - Excluir jogo (Obrigatório AV1)
+app.delete("/jogos/:id", (req, res) => {
+  const id = Number(req.params.id);
+  const index = jogos.findIndex((item) => item.id === id);
+
+  if (index === -1) {
+    return res.status(404).json({ mensagem: "Jogo não encontrado" });
+  }
+
+  const jogoRemovido = jogos.splice(index, 1);
+
+  res.json({
+    mensagem: "Jogo removido com sucesso",
+    jogo: jogoRemovido[0]
   });
 });
 
