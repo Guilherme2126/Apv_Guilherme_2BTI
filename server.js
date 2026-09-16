@@ -87,6 +87,7 @@ const swaggerDocument = {
     "/jogos/{id}": {
       get: { summary: "Consulta um jogo", security: [{ bearerAuth: [] }] },
       put: { summary: "Atualiza um jogo", security: [{ bearerAuth: [] }] },
+      patch: { summary: "Atualiza parcialmente um jogo", security: [{ bearerAuth: [] }] },
       delete: { summary: "Exclui um jogo", security: [{ bearerAuth: [] }] }
     },
     "/upload": { post: { summary: "Envia uma imagem", security: [{ bearerAuth: [] }] } }
@@ -206,6 +207,27 @@ app.put("/jogos/:id", autenticar, (req, res) => {
   res.json({
     mensagem: "Jogo atualizado com sucesso",
     jogo: jogos[index]
+  });
+});
+
+// PATCH /jogos/:id - Atualizar parcialmente um jogo
+app.patch("/jogos/:id", autenticar, (req, res) => {
+  const id = Number(req.params.id);
+  const jogo = jogos.find((item) => item.id === id);
+
+  if (!jogo) {
+    return res.status(404).json({ mensagem: "Jogo não encontrado" });
+  }
+
+  const { titulo, genero, ano } = req.body;
+
+  if (titulo !== undefined) jogo.titulo = titulo;
+  if (genero !== undefined) jogo.genero = genero;
+  if (ano !== undefined) jogo.ano = Number(ano);
+
+  res.json({
+    mensagem: "Jogo atualizado parcialmente com sucesso",
+    jogo
   });
 });
 
