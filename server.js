@@ -1,6 +1,7 @@
 import express from "express";
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
+import filmes from "./models/Filmes.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
