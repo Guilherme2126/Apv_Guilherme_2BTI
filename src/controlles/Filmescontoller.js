@@ -1,5 +1,6 @@
-import filmes from '../models/Filmes.js';
+import { cache } from 'react';
 
+import filmes from '../models/Filmes.js';
 export const listarFilmes = (req, res) => {
   res.json(filmes);
 }
