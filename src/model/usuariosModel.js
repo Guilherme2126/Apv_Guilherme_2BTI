@@ -10,7 +10,7 @@ export function cadastrarUsuario({ nome, email, senhaHash }) {
         select: {
             id: true,
             nome: true,
-            email: true
+            email: true,
             senhaHash: true
         }
     });
